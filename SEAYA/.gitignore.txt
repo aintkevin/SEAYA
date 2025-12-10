@@ -1,0 +1,17 @@
+# Ignore Visual Studio temp files
+.vs/
+bin/
+obj/
+packages/
+*.user
+*.suo
+*.cache
+*.vscode
+
+# Ignore local SQL Server databases
+*.mdf
+*.ldf
+
+# Ignore backups and logs
+*.log
+*.tmp
