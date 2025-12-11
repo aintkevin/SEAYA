@@ -12,38 +12,70 @@ namespace SEAYA
 {
     public partial class signin : Form
     {
-        private static SEAYAEntities db = new SEAYAEntities();
         public signin()
         {
             InitializeComponent();
+            SetupHoverEffects();
         }
+
+        private void SetupHoverEffects()
+        {
+            button1.MouseEnter += Button1_MouseEnter;
+            button1.MouseLeave += Button1_MouseLeave;
+        }
+
+        private void Button1_MouseEnter(object sender, EventArgs e)
+        {
+            button1.BackColor = Color.FromArgb(0, 122, 204);
+        }
+
+        private void Button1_MouseLeave(object sender, EventArgs e)
+        {
+            button1.BackColor = Color.FromArgb(0, 150, 199);
+        }
+
         private void button1_Click(object sender, EventArgs e)
         {
             string username = txtUsername.Text;
             string password = txtPassword.Text;
 
-            var user = db.Users.Where(u => u.Username.Equals(username) && u.Password.Equals(password)).FirstOrDefault();
-
-            if (user != null)
+            try
             {
-                MessageBox.Show("Login successful!");
+                using (var db = new SEAYAEntities())
+                {
+                    var user = db.Users.Where(u => u.Username.Equals(username) && u.Password.Equals(password)).FirstOrDefault();
+
+                    if (user != null)
+                    {
+                        MessageBox.Show("Login successful! Welcome aboard!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
    
-                if (user.RoleID == 1)
-                {
-                    SEAYAADMIN admin = new SEAYAADMIN();
-                    admin.Show();
-                }
-                else
-                {
-                    profile passenger = new profile(user);
-                    passenger.Show();
-                }
+                        if (user.RoleID == 1)
+                        {
+                            SEAYAADMIN admin = new SEAYAADMIN();
+                            admin.Show();
+                        }
+                        else
+                        {
+                            profile passenger = new profile(user);
+                            passenger.Show();
+                        }
 
-                this.Hide();
+                        this.Hide();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Invalid username or password.\nPlease check your credentials and try again.", "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
             }
-            else
+            catch (System.Data.Entity.Core.EntityException ex)
             {
-                MessageBox.Show("Invalid username or password.");
+                MessageBox.Show("Database connection error. Please ensure SQL Server is running.\n\nDetails: " + ex.InnerException?.Message, 
+                    "Connection Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("An error occurred: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
